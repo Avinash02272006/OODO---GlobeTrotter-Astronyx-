@@ -52,7 +52,8 @@ GlobeTrotter bridges the gap between functionality and luxury. It provides a cen
 | Layer | Technology |
 | :--- | :--- |
 | **Frontend** | ![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css) ![Framer Motion](https://img.shields.io/badge/Framer-Motion-0055FF?style=flat-square&logo=framer) |
-| **Backend** | ![Node.js](https://img.shields.io/badge/Node.js-20-339933?style=flat-square&logo=node.js) ![Express](https://img.shields.io/badge/Express-4.18-000000?style=flat-square&logo=express) ![Socket.io](https://img.shields.io/badge/Socket.io-4.7-010101?style=flat-square&logo=socket.io) |
+| **Backend** | ![Node.js](https://img.shields.io/badge/Node.js-20-339933?style=flat-square&logo=node.js) ![Express](https://img.shields.io/badge/Express-4.18-000000?style=flat-square&logo=express) ![Socket.io](https://img.shields.io/badge/Socket.io-4.7-010101?style=flat-square&logo=socket.io) 
+[Python] ! |
 | **Database** | ![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat-square&logo=prisma) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql) |
 | **Maps & Charts** | ![Leaflet](https://img.shields.io/badge/Leaflet-1.9-199900?style=flat-square&logo=leaflet) ![Chart.js](https://img.shields.io/badge/Chart.js-4.4-FF6384?style=flat-square&logo=chart.js) |
 
