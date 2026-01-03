@@ -11,8 +11,8 @@ interface TripCardProps {
 
 const TripCard = ({ trip }: TripCardProps) => {
     return (
-        <Link href={`/trips/${trip.id}`}>
-            <div className="glass-card rounded-[32px] overflow-hidden group cursor-pointer card-glow">
+        <div className="glass-card rounded-[32px] overflow-hidden group cursor-pointer card-glow flex flex-col h-full">
+            <Link href={`/trips/${trip.id}`} className="flex-1">
                 <div className="h-48 relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute top-4 right-4 z-10">
@@ -38,26 +38,34 @@ const TripCard = ({ trip }: TripCardProps) => {
                             {format(new Date(trip.startDate), 'MMM d')} - {format(new Date(trip.endDate), 'MMM d, yyyy')}
                         </div>
                     </div>
+                </div>
+            </Link>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                        <div className="flex -space-x-2">
-                            {[1, 2].map((i) => (
-                                <div key={i} className="w-7 h-7 rounded-full bg-white/[0.03] border border-black flex items-center justify-center text-[8px] font-bold">
-                                    U{i}
-                                </div>
-                            ))}
-                            <div className="w-7 h-7 rounded-full bg-white/[0.03] border border-black flex items-center justify-center text-[8px] font-bold text-gray-500">
-                                +
-                            </div>
+            <div className="px-6 pb-6">
+                <Link href={`/trips/${trip.id}/itinerary`}>
+                    <button className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold uppercase tracking-widest transition-all">
+                        Build Itinerary
+                    </button>
+                </Link>
+            </div>
+
+            <div className="px-6 py-4 border-t border-white/5 flex items-center justify-between">
+                <div className="flex -space-x-2">
+                    {[1, 2].map((i) => (
+                        <div key={i} className="w-7 h-7 rounded-full bg-white/[0.03] border border-black flex items-center justify-center text-[8px] font-bold">
+                            U{i}
                         </div>
-                        <div className="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                            <Users className="w-3 h-3 mr-1" />
-                            Collaborative
-                        </div>
+                    ))}
+                    <div className="w-7 h-7 rounded-full bg-white/[0.03] border border-black flex items-center justify-center text-[8px] font-bold text-gray-500">
+                        +
                     </div>
                 </div>
+                <div className="flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    <Users className="w-3 h-3 mr-1" />
+                    Collaborative
+                </div>
             </div>
-        </Link>
+        </div>
     );
 };
 

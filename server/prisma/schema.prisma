@@ -22,6 +22,7 @@ model User {
   role          String    @default("USER")
   trips         Trip[]
   sharedTrips   SharedTrip[]
+  posts         Post[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -106,6 +107,35 @@ model SharedTrip {
   createdAt     DateTime  @default(now())
 
   @@unique([tripId, userId])
+}
+
+model Post {
+  id            String    @id @default(uuid())
+  title         String
+  content       String
+  image         String?
+  location      String?
+  authorId      String
+  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  likes         Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([authorId])
+}
+
+model GlobalActivity {
+  id            String    @id @default(uuid())
+  title         String
+  description   String
+  image         String
+  price         Float
+  rating        Float
+  reviews       Int
+  category      String
+  location      String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Analytics {

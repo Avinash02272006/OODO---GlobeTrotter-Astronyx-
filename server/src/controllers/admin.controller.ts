@@ -41,3 +41,55 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         res.status(500).json({ message: error.message });
     }
 };
+export const getUsers = async (req: Request, res: Response) => {
+    try {
+        const { search } = req.query;
+        const where: any = {};
+
+        if (search) {
+            where.OR = [
+                { email: { contains: String(search) } },
+                { firstName: { contains: String(search) } },
+                { lastName: { contains: String(search) } },
+            ];
+        }
+
+        const users = await prisma.user.findMany({
+            where,
+            select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                role: true,
+                createdAt: true,
+                _count: {
+                    select: { trips: true }
+                }
+            }
+        });
+        res.json(users);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const getPopularActivities = async (req: Request, res: Response) => {
+    try {
+        const popularActivities = await prisma.activity.groupBy({
+            by: ['title'],
+            _count: {
+                title: true,
+            },
+            orderBy: {
+                _count: {
+                    title: 'desc',
+                },
+            },
+            take: 10,
+        });
+        res.json(popularActivities);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};

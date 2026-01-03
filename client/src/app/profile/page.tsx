@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -17,14 +17,63 @@ import {
     ChevronRight,
     Map,
     Heart,
-    Award
+    Award,
+    Loader2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import api from '@/lib/api';
+
+interface Trip {
+    id: string;
+    title: string;
+    startDate: string;
+    endDate: string;
+    city: string;
+    image?: string;
+}
 
 const ProfilePage = () => {
     const { user, logout } = useAuth();
+    const [trips, setTrips] = useState<Trip[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [stats, setStats] = useState({
+        trips: 0,
+        cities: 0,
+        countries: 0,
+        miles: '0'
+    });
+
+    useEffect(() => {
+        if (user) {
+            fetchProfileData();
+        }
+    }, [user]);
+
+    const fetchProfileData = async () => {
+        try {
+            const [tripsRes, statsRes] = await Promise.all([
+                api.get('/trips'),
+                api.get('/admin/stats') // Reusing admin stats for now, ideally should be a user-specific endpoint
+            ]);
+            setTrips(tripsRes.data);
+            // Mocking user-specific stats from general stats for now
+            setStats({
+                trips: tripsRes.data.length,
+                cities: tripsRes.data.length * 2,
+                countries: Math.ceil(tripsRes.data.length / 2),
+                miles: (tripsRes.data.length * 1200).toLocaleString()
+            });
+        } catch (error) {
+            console.error('Error fetching profile data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     if (!user) return null;
+
+    const preplannedTrips = trips.filter(t => new Date(t.startDate) > new Date());
+    const previousTrips = trips.filter(t => new Date(t.startDate) <= new Date());
 
     return (
         <main className="min-h-screen bg-black text-white">
@@ -42,7 +91,11 @@ const ProfilePage = () => {
                             <div className="relative group">
                                 <div className="w-32 h-32 rounded-[40px] bg-black border-4 border-black overflow-hidden relative">
                                     <div className="w-full h-full bg-white/[0.03] flex items-center justify-center">
-                                        <User className="w-12 h-12 text-gray-600" />
+                                        {user.avatar ? (
+                                            <img src={user.avatar} alt={user.firstName} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <User className="w-12 h-12 text-gray-600" />
+                                        )}
                                     </div>
                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                                         <Camera className="w-6 h-6 text-white" />
@@ -56,7 +109,7 @@ const ProfilePage = () => {
                                 <h1 className="text-4xl font-bold tracking-tight">{user.firstName} {user.lastName}</h1>
                                 <p className="text-gray-500 flex items-center mt-1">
                                     <MapPin className="w-4 h-4 mr-1.5" />
-                                    {user.city}, {user.country}
+                                    {user.city || 'World'}, {user.country || 'Traveler'}
                                 </p>
                             </div>
                         </div>
@@ -112,19 +165,19 @@ const ProfilePage = () => {
                                 <h3 className="text-xl font-bold mb-8">Travel Stats</h3>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="p-4 rounded-3xl bg-white/[0.03] border border-white/[0.08] text-center">
-                                        <div className="text-2xl font-bold">12</div>
+                                        <div className="text-2xl font-bold">{stats.trips}</div>
                                         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">Trips</p>
                                     </div>
                                     <div className="p-4 rounded-3xl bg-white/[0.03] border border-white/[0.08] text-center">
-                                        <div className="text-2xl font-bold">24</div>
+                                        <div className="text-2xl font-bold">{stats.cities}</div>
                                         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">Cities</p>
                                     </div>
                                     <div className="p-4 rounded-3xl bg-white/[0.03] border border-white/[0.08] text-center">
-                                        <div className="text-2xl font-bold">8</div>
+                                        <div className="text-2xl font-bold">{stats.countries}</div>
                                         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">Countries</p>
                                     </div>
                                     <div className="p-4 rounded-3xl bg-white/[0.03] border border-white/[0.08] text-center">
-                                        <div className="text-2xl font-bold">142k</div>
+                                        <div className="text-2xl font-bold">{stats.miles}</div>
                                         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">Miles</p>
                                     </div>
                                 </div>
@@ -151,28 +204,69 @@ const ProfilePage = () => {
                                 </p>
                             </div>
 
+                            {/* Preplanned Trips */}
                             <div className="space-y-6">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-xl font-bold">Recent Adventures</h3>
+                                    <h3 className="text-xl font-bold">Preplanned Trips</h3>
                                     <button className="text-sm text-gray-500 hover:text-white transition-colors">View all</button>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {[
-                                        { name: 'Summer in Tuscany', date: 'Aug 2023', img: 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963' },
-                                        { name: 'Tokyo Exploration', date: 'May 2023', img: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf' },
-                                    ].map((trip, i) => (
-                                        <div key={i} className="glass-card rounded-[32px] overflow-hidden group cursor-pointer">
-                                            <div className="h-40 relative overflow-hidden">
-                                                <img src={`${trip.img}?q=80&w=600&auto=format&fit=crop`} alt={trip.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                                                <div className="absolute bottom-4 left-4">
-                                                    <h4 className="font-bold">{trip.name}</h4>
-                                                    <p className="text-[10px] text-gray-300 uppercase tracking-widest">{trip.date}</p>
+                                    {loading ? (
+                                        <div className="col-span-2 flex items-center justify-center py-12">
+                                            <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                                        </div>
+                                    ) : preplannedTrips.length > 0 ? (
+                                        preplannedTrips.map((trip, i) => (
+                                            <div key={trip.id} className="glass-card rounded-[32px] overflow-hidden group cursor-pointer">
+                                                <div className="h-40 relative overflow-hidden">
+                                                    <img src={trip.image || `https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=600&auto=format&fit=crop`} alt={trip.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                                                    <div className="absolute bottom-4 left-4">
+                                                        <h4 className="font-bold">{trip.title}</h4>
+                                                        <p className="text-[10px] text-gray-300 uppercase tracking-widest">{new Date(trip.startDate).toLocaleDateString()}</p>
+                                                    </div>
                                                 </div>
                                             </div>
+                                        ))
+                                    ) : (
+                                        <div className="col-span-2 glass-card p-8 rounded-[32px] text-center text-gray-500">
+                                            No preplanned trips found.
                                         </div>
-                                    ))}
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Previous Trips */}
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-xl font-bold">Previous Trips</h3>
+                                    <button className="text-sm text-gray-500 hover:text-white transition-colors">View all</button>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {loading ? (
+                                        <div className="col-span-2 flex items-center justify-center py-12">
+                                            <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                                        </div>
+                                    ) : previousTrips.length > 0 ? (
+                                        previousTrips.map((trip, i) => (
+                                            <div key={trip.id} className="glass-card rounded-[32px] overflow-hidden group cursor-pointer opacity-70 hover:opacity-100 transition-opacity">
+                                                <div className="h-40 relative overflow-hidden">
+                                                    <img src={trip.image || `https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=600&auto=format&fit=crop`} alt={trip.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                                                    <div className="absolute bottom-4 left-4">
+                                                        <h4 className="font-bold">{trip.title}</h4>
+                                                        <p className="text-[10px] text-gray-300 uppercase tracking-widest">{new Date(trip.startDate).toLocaleDateString()}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="col-span-2 glass-card p-8 rounded-[32px] text-center text-gray-500">
+                                            No previous trips found.
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

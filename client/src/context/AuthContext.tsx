@@ -13,6 +13,7 @@ interface User {
     city?: string;
     country?: string;
     additionalInfo?: string;
+    avatar?: string;
 }
 
 interface AuthContextType {

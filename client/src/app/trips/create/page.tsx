@@ -12,6 +12,7 @@ const CreateTrip = () => {
     const router = useRouter();
     const [formData, setFormData] = useState({
         title: '',
+        location: '',
         startDate: '',
         endDate: '',
         description: ''
@@ -35,105 +36,123 @@ const CreateTrip = () => {
         <main className="min-h-screen bg-black text-white selection:bg-white/20">
             <Navbar />
 
-            <div className="container mx-auto px-6 pt-32 pb-12">
-                <div className="max-w-3xl mx-auto">
+            <div className="container mx-auto px-6 pt-32 pb-24">
+                <div className="max-w-4xl mx-auto">
+                    {/* Header */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mb-12"
+                        className="mb-16"
                     >
-                        <Link href="/dashboard" className="inline-flex items-center text-sm text-gray-500 hover:text-white transition-colors mb-8 group">
-                            <X className="w-4 h-4 mr-2 group-hover:rotate-90 transition-transform" />
-                            Cancel and go back
-                        </Link>
-                        <h1 className="text-5xl font-bold tracking-tight mb-4">Start your journey.</h1>
-                        <p className="text-gray-500 text-lg">Every great adventure begins with a single step. Tell us about your dream trip.</p>
+                        <div className="flex items-center gap-6 mb-12">
+                            <h1 className="text-4xl font-bold tracking-tight whitespace-nowrap">Plan a new trip</h1>
+                            <div className="h-[1px] w-full bg-white/10" />
+                        </div>
                     </motion.div>
 
-                    <form onSubmit={handleSubmit} className="space-y-12">
-                        {/* Cover Photo Placeholder */}
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.1 }}
-                            className="relative h-64 rounded-[40px] bg-white/[0.02] border border-white/[0.08] border-dashed flex flex-col items-center justify-center group cursor-pointer hover:bg-white/[0.04] transition-all"
-                        >
-                            <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
-                                <Camera className="w-8 h-8 text-gray-500" />
-                            </div>
-                            <span className="text-sm font-bold uppercase tracking-widest text-gray-500">Add Cover Photo</span>
-                            <p className="text-[10px] text-gray-600 mt-2">Optional • JPG, PNG up to 10MB</p>
-                        </motion.div>
-
-                        <div className="grid grid-cols-1 gap-8">
-                            <div className="space-y-4">
-                                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">Journey Title</label>
+                    {/* Form */}
+                    <form onSubmit={handleSubmit} className="space-y-8 mb-24">
+                        <div className="grid grid-cols-1 gap-6">
+                            <div className="flex flex-col md:flex-row md:items-center gap-4">
+                                <label className="w-full md:w-48 text-lg font-medium text-gray-300">Trip Title :</label>
                                 <input
                                     type="text"
                                     required
                                     placeholder="e.g., Summer in the Swiss Alps"
-                                    className="w-full px-8 py-6 bg-white/[0.02] border border-white/[0.08] rounded-[32px] text-xl font-medium focus:outline-none focus:border-white/20 transition-all placeholder:text-gray-700"
+                                    className="flex-1 px-6 py-4 bg-white/[0.03] border border-white/[0.08] rounded-2xl focus:outline-none focus:border-white/20 transition-all"
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-4">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">Departure</label>
-                                    <div className="relative">
-                                        <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-600" />
-                                        <input
-                                            type="date"
-                                            required
-                                            className="w-full pl-16 pr-8 py-6 bg-white/[0.02] border border-white/[0.08] rounded-[32px] focus:outline-none focus:border-white/20 transition-all"
-                                            value={formData.startDate}
-                                            onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="space-y-4">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">Return</label>
-                                    <div className="relative">
-                                        <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-600" />
-                                        <input
-                                            type="date"
-                                            required
-                                            className="w-full pl-16 pr-8 py-6 bg-white/[0.02] border border-white/[0.08] rounded-[32px] focus:outline-none focus:border-white/20 transition-all"
-                                            value={formData.endDate}
-                                            onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                                        />
-                                    </div>
+                            <div className="flex flex-col md:flex-row md:items-center gap-4">
+                                <label className="w-full md:w-48 text-lg font-medium text-gray-300">Select a Place :</label>
+                                <div className="flex-1 relative">
+                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                    <input
+                                        type="text"
+                                        required
+                                        placeholder="Where are you going?"
+                                        className="w-full pl-12 pr-6 py-4 bg-white/[0.03] border border-white/[0.08] rounded-2xl focus:outline-none focus:border-white/20 transition-all"
+                                        value={formData.location}
+                                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                    />
                                 </div>
                             </div>
 
-                            <div className="space-y-4">
-                                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">Description</label>
-                                <textarea
-                                    rows={4}
-                                    placeholder="What's the motive of this journey?"
-                                    className="w-full px-8 py-6 bg-white/[0.02] border border-white/[0.08] rounded-[32px] focus:outline-none focus:border-white/20 transition-all resize-none placeholder:text-gray-700"
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                />
+                            <div className="flex flex-col md:flex-row md:items-center gap-4">
+                                <label className="w-full md:w-48 text-lg font-medium text-gray-300">Start Date :</label>
+                                <div className="flex-1 relative">
+                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                    <input
+                                        type="date"
+                                        required
+                                        className="w-full pl-12 pr-6 py-4 bg-white/[0.03] border border-white/[0.08] rounded-2xl focus:outline-none focus:border-white/20 transition-all"
+                                        value={formData.startDate}
+                                        onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col md:flex-row md:items-center gap-4">
+                                <label className="w-full md:w-48 text-lg font-medium text-gray-300">End Date :</label>
+                                <div className="flex-1 relative">
+                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                    <input
+                                        type="date"
+                                        required
+                                        className="w-full pl-12 pr-6 py-4 bg-white/[0.03] border border-white/[0.08] rounded-2xl focus:outline-none focus:border-white/20 transition-all"
+                                        value={formData.endDate}
+                                        onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between pt-8">
-                            <div className="flex items-center space-x-2 text-gray-500">
-                                <Sparkles className="w-4 h-4 text-blue-400" />
-                                <span className="text-xs font-medium">Auto-generating itinerary suggestions...</span>
-                            </div>
+                        <div className="flex justify-end pt-8">
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="btn-premium group flex items-center"
+                                className="btn-premium px-12 py-4 rounded-2xl flex items-center gap-3"
                             >
                                 {isSubmitting ? 'Creating...' : 'Create Journey'}
-                                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                <ArrowRight className="w-5 h-5" />
                             </button>
                         </div>
                     </form>
+
+                    {/* Suggestions Section */}
+                    <section>
+                        <div className="flex items-center gap-6 mb-12">
+                            <h2 className="text-2xl font-bold tracking-tight whitespace-nowrap">Suggestion for Places to Visit/Activities to perform</h2>
+                            <div className="h-[1px] w-full bg-white/10" />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {[
+                                { name: "Eiffel Tower", category: "Landmark", img: "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?q=80&w=1974&auto=format&fit=crop" },
+                                { name: "Louvre Museum", category: "Culture", img: "https://images.unsplash.com/photo-1597910034998-247214af4428?q=80&w=2070&auto=format&fit=crop" },
+                                { name: "Seine River Cruise", category: "Activity", img: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=2073&auto=format&fit=crop" },
+                                { name: "Montmartre", category: "District", img: "https://images.unsplash.com/photo-1503917988258-f87a78e3c995?q=80&w=1974&auto=format&fit=crop" },
+                                { name: "Arc de Triomphe", category: "Landmark", img: "https://images.unsplash.com/photo-1509439581779-6298f75bf6e5?q=80&w=1974&auto=format&fit=crop" },
+                                { name: "Palace of Versailles", category: "History", img: "https://images.unsplash.com/photo-1585155967349-90c1b1dc568e?q=80&w=2072&auto=format&fit=crop" },
+                            ].map((item, i) => (
+                                <div key={i} className="group cursor-pointer">
+                                    <div className="aspect-square rounded-[32px] overflow-hidden mb-4 relative">
+                                        <img src={item.img} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
+                                        <div className="absolute top-4 right-4">
+                                            <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-bold uppercase tracking-widest">
+                                                {item.category}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <h3 className="font-bold text-lg">{item.name}</h3>
+                                    <p className="text-xs text-gray-500">Popular choice</p>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
                 </div>
             </div>
         </main>

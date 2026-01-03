@@ -7,6 +7,8 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import tripRoutes from './routes/trip.routes';
 import adminRoutes from './routes/admin.routes';
+import communityRoutes from './routes/community.routes';
+import activityRoutes from './routes/activity.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 dotenv.config();
@@ -37,6 +39,8 @@ app.get('/api/v1', (req, res) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/trips', tripRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/community', communityRoutes);
+app.use('/api/v1/activities', activityRoutes);
 
 app.use(errorHandler);
 

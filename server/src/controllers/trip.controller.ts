@@ -38,13 +38,27 @@ export const createTrip = async (req: AuthRequest, res: Response) => {
 export const getTrips = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.userId!;
+        const { search, startDate, endDate } = req.query;
+
+        const where: any = {
+            OR: [
+                { ownerId: userId },
+                { sharedWith: { some: { userId } } }
+            ]
+        };
+
+        if (search) {
+            where.title = { contains: String(search) };
+        }
+
+        if (startDate || endDate) {
+            where.startDate = {};
+            if (startDate) where.startDate.gte = new Date(String(startDate));
+            if (endDate) where.startDate.lte = new Date(String(endDate));
+        }
+
         const trips = await prisma.trip.findMany({
-            where: {
-                OR: [
-                    { ownerId: userId },
-                    { sharedWith: { some: { userId } } }
-                ]
-            },
+            where,
             include: {
                 stops: true,
             },
@@ -81,7 +95,7 @@ export const getTripById = async (req: AuthRequest, res: Response) => {
                 sharedWith: {
                     include: {
                         user: {
-                            select: { id: true, email: true, name: true, avatar: true }
+                            select: { id: true, email: true, firstName: true, lastName: true, avatar: true }
                         }
                     }
                 }

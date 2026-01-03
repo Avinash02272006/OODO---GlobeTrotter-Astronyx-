@@ -25,6 +25,7 @@ const Navbar = () => {
         { name: 'Community', href: '/community' },
         { name: 'Calendar', href: '/calendar' },
         { name: 'Search', href: '/search' },
+        { name: 'Admin', href: '/admin' },
     ];
 
     return (

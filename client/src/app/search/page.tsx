@@ -1,170 +1,258 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
-import { Search as SearchIcon, Filter, ArrowUpAz, MapPin, Star, Clock, DollarSign, Sparkles, ChevronRight, Compass } from 'lucide-react';
-import { motion } from 'framer-motion';
+import {
+    Search as SearchIcon,
+    Filter,
+    ArrowUpAz,
+    MapPin,
+    Star,
+    Clock,
+    DollarSign,
+    Sparkles,
+    ChevronRight,
+    Compass,
+    SlidersHorizontal,
+    LayoutGrid,
+    ListFilter,
+    Calendar,
+    Loader2
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
+import api from '@/lib/api';
+
+const CATEGORIES = ['All', 'Adventure', 'Nature', 'Food', 'Water Sports', 'Culture', 'Sightseeing'];
 
 const SearchPage = () => {
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('All');
+    const [activities, setActivities] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchActivities = async () => {
+            setLoading(true);
+            try {
+                const params: any = {};
+                if (selectedCategory !== 'All') params.category = selectedCategory;
+                if (searchQuery) params.search = searchQuery;
+
+                const { data } = await api.get('/activities', { params });
+                setActivities(data);
+            } catch (error) {
+                console.error('Error fetching activities:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        const debounce = setTimeout(fetchActivities, 300);
+        return () => clearTimeout(debounce);
+    }, [searchQuery, selectedCategory]);
+
     return (
-        <main className="min-h-screen bg-black text-white">
+        <main className="min-h-screen bg-[#050505] text-white selection:bg-blue-500/30">
             <Navbar />
 
-            <div className="container mx-auto px-6 pt-32 pb-12">
-                <div className="max-w-4xl mx-auto text-center mb-16">
+            <div className="container mx-auto px-6 pt-32 pb-24">
+                <div className="max-w-6xl mx-auto">
+                    {/* Header Section */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
+                        className="mb-12"
                     >
-                        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] mb-6">
-                            <Compass className="w-3 h-3 text-blue-400" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Discover the World</span>
-                        </div>
-                        <h1 className="text-6xl font-bold tracking-tight mb-8">Where to next?</h1>
-
-                        <div className="relative group">
-                            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-[32px] blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
-                            <div className="relative glass-card p-2 rounded-[32px] flex items-center">
-                                <SearchIcon className="w-6 h-6 text-gray-500 ml-6" />
-                                <input
-                                    type="text"
-                                    placeholder="Search cities, experiences, or itineraries..."
-                                    className="flex-1 bg-transparent border-none focus:ring-0 px-6 py-6 text-xl font-medium placeholder:text-gray-700"
-                                />
-                                <button className="btn-premium py-4 px-10 mr-2">Search</button>
+                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+                            <div>
+                                <h1 className="text-5xl font-bold tracking-tight mb-4 bg-gradient-to-r from-white via-white to-white/40 bg-clip-text text-transparent">
+                                    Explore Experiences
+                                </h1>
+                                <p className="text-gray-400 text-lg max-w-xl">
+                                    Discover and book unique activities curated for your next global adventure.
+                                </p>
                             </div>
-                        </div>
-
-                        <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
-                            <span className="text-xs font-bold uppercase tracking-widest text-gray-600">Popular:</span>
-                            {['Paris', 'Tokyo', 'Swiss Alps', 'Bali', 'New York'].map((tag) => (
-                                <button key={tag} className="px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] text-xs font-bold hover:bg-white/10 transition-colors">
-                                    {tag}
-                                </button>
-                            ))}
+                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                                <Compass className="w-4 h-4" />
+                                <span>Showing {activities.length} results in GlobalTrotter</span>
+                            </div>
                         </div>
                     </motion.div>
-                </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
-                    {/* Filters Sidebar */}
-                    <div className="space-y-12">
-                        <div className="glass-card p-8 rounded-[40px]">
-                            <h3 className="text-xl font-bold mb-8">Filters</h3>
-
-                            <div className="space-y-8">
-                                <div>
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-4 block">Destination Type</label>
-                                    <div className="space-y-3">
-                                        {['City Break', 'Nature & Outdoors', 'Beach & Coastal', 'Cultural Heritage'].map((type) => (
-                                            <label key={type} className="flex items-center space-x-3 cursor-pointer group">
-                                                <div className="w-5 h-5 rounded-lg border border-white/10 flex items-center justify-center group-hover:border-blue-500/50 transition-colors">
-                                                    <div className="w-2.5 h-2.5 rounded-sm bg-blue-500 opacity-0 group-hover:opacity-20 transition-opacity" />
-                                                </div>
-                                                <span className="text-sm text-gray-400 group-hover:text-white transition-colors">{type}</span>
-                                            </label>
-                                        ))}
-                                    </div>
+                    {/* Search & Filter Bar */}
+                    <div className="sticky top-24 z-40 mb-12">
+                        <div className="glass-card p-2 rounded-[24px] border border-white/10 shadow-2xl shadow-black/50 backdrop-blur-xl">
+                            <div className="flex flex-col lg:flex-row items-center gap-2">
+                                <div className="relative flex-1 w-full">
+                                    <SearchIcon className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search activities, cities, or categories..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full pl-14 pr-6 py-5 bg-transparent rounded-2xl focus:outline-none text-base placeholder:text-gray-600"
+                                    />
                                 </div>
 
-                                <div>
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-4 block">Budget Range</label>
-                                    <div className="h-1.5 w-full bg-white/[0.03] rounded-full relative">
-                                        <div className="absolute inset-y-0 left-0 w-2/3 bg-blue-500 rounded-full" />
-                                        <div className="absolute top-1/2 left-2/3 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-xl" />
-                                    </div>
-                                    <div className="flex justify-between mt-4 text-[10px] font-bold text-gray-500">
-                                        <span>$0</span>
-                                        <span>$10,000+</span>
-                                    </div>
-                                </div>
+                                <div className="h-10 w-[1px] bg-white/10 hidden lg:block" />
 
-                                <div>
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-4 block">Duration</label>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        {['1-3 Days', '4-7 Days', '8-14 Days', '14+ Days'].map((d) => (
-                                            <button key={d} className="px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.08] text-[10px] font-bold hover:bg-white/10 transition-colors">
-                                                {d}
-                                            </button>
-                                        ))}
-                                    </div>
+                                <div className="flex items-center gap-2 w-full lg:w-auto p-1">
+                                    <button className="flex-1 lg:flex-none px-6 py-4 bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 rounded-xl flex items-center justify-center gap-2 transition-all group">
+                                        <ListFilter className="w-4 h-4 text-gray-400 group-hover:text-white" />
+                                        <span className="text-sm font-medium">Group by</span>
+                                    </button>
+                                    <button className="flex-1 lg:flex-none px-6 py-4 bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 rounded-xl flex items-center justify-center gap-2 transition-all group">
+                                        <SlidersHorizontal className="w-4 h-4 text-gray-400 group-hover:text-white" />
+                                        <span className="text-sm font-medium">Filter</span>
+                                    </button>
+                                    <button className="flex-1 lg:flex-none px-6 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-600/20">
+                                        <ArrowUpAz className="w-4 h-4" />
+                                        <span className="text-sm font-medium">Sort by</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
-
-                        <div className="glass-card p-8 rounded-[40px] bg-gradient-to-br from-blue-600/10 to-purple-600/10 border-blue-500/20">
-                            <Sparkles className="w-6 h-6 text-blue-400 mb-4" />
-                            <h4 className="font-bold mb-2">AI Recommendations</h4>
-                            <p className="text-sm text-gray-400 leading-relaxed mb-6">
-                                Based on your previous trips to Europe, you might enjoy exploring <strong>Prague</strong> or <strong>Vienna</strong>.
-                            </p>
-                            <button className="text-xs font-bold uppercase tracking-widest text-blue-400 flex items-center hover:text-blue-300 transition-colors">
-                                View Suggestions <ChevronRight className="w-3 h-3 ml-1" />
-                            </button>
-                        </div>
                     </div>
 
-                    {/* Search Results */}
-                    <div className="lg:col-span-3 space-y-8">
+                    {/* Quick Category Filters */}
+                    <div className="flex items-center gap-3 mb-12 overflow-x-auto pb-4 no-scrollbar">
+                        {CATEGORIES.map((cat) => (
+                            <button
+                                key={cat}
+                                onClick={() => setSelectedCategory(cat)}
+                                className={`px-6 py-2.5 rounded-full border text-sm font-medium transition-all whitespace-nowrap ${selectedCategory === cat
+                                    ? 'bg-white text-black border-white'
+                                    : 'bg-white/[0.03] text-gray-400 border-white/10 hover:border-white/30'
+                                    }`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Results Section */}
+                    <section>
                         <div className="flex items-center justify-between mb-8">
-                            <h2 className="text-xl font-bold tracking-tight">84 results found</h2>
-                            <button className="flex items-center space-x-2 text-sm text-gray-500 hover:text-white transition-colors">
-                                <ArrowUpAz className="w-4 h-4" />
-                                <span>Sort by: Recommended</span>
-                            </button>
+                            <h2 className="text-2xl font-bold tracking-tight flex items-center gap-3">
+                                <Sparkles className="w-6 h-6 text-blue-500" />
+                                Recommended for you
+                            </h2>
+                            <div className="flex items-center gap-2">
+                                <button className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-white transition-colors">
+                                    <LayoutGrid className="w-5 h-5" />
+                                </button>
+                                <button className="p-2 rounded-lg bg-white/10 text-white transition-colors">
+                                    <Compass className="w-5 h-5" />
+                                </button>
+                            </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {[
-                                { name: 'Swiss Alps Adventure', location: 'Switzerland', rating: '4.9', price: '$2,400', img: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1' },
-                                { name: 'Tokyo Neon Nights', location: 'Japan', rating: '4.8', price: '$3,200', img: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf' },
-                                { name: 'Parisian Romance', location: 'France', rating: '4.7', price: '$1,800', img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34' },
-                                { name: 'Bali Zen Retreat', location: 'Indonesia', rating: '4.9', price: '$1,500', img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4' },
-                            ].map((item, i) => (
-                                <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    className="glass-card rounded-[40px] overflow-hidden group cursor-pointer card-glow"
-                                >
-                                    <div className="aspect-video relative overflow-hidden">
-                                        <img src={`${item.img}?q=80&w=800&auto=format&fit=crop`} alt={item.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                                        <div className="absolute top-6 right-6">
-                                            <div className="flex items-center space-x-1 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
-                                                <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                                                <span className="text-[10px] font-bold">{item.rating}</span>
+                        {loading ? (
+                            <div className="flex items-center justify-center py-24">
+                                <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 gap-6">
+                                {activities.map((activity, i) => (
+                                    <motion.div
+                                        key={activity.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ delay: i * 0.1 }}
+                                        className="group relative glass-card overflow-hidden rounded-[32px] border border-white/10 hover:border-blue-500/30 transition-all duration-500"
+                                    >
+                                        <div className="flex flex-col md:flex-row h-full">
+                                            {/* Image Section */}
+                                            <div className="relative w-full md:w-[350px] h-[250px] md:h-auto overflow-hidden">
+                                                <Image
+                                                    src={activity.image}
+                                                    alt={activity.title}
+                                                    fill
+                                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                                                <div className="absolute top-4 left-4">
+                                                    <span className="px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-[10px] font-bold uppercase tracking-widest">
+                                                        {activity.category}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Content Section */}
+                                            <div className="flex-1 p-8 flex flex-col justify-between">
+                                                <div>
+                                                    <div className="flex items-start justify-between mb-4">
+                                                        <div>
+                                                            <div className="flex items-center gap-2 text-blue-400 text-sm font-medium mb-2">
+                                                                <MapPin className="w-4 h-4" />
+                                                                {activity.location}
+                                                            </div>
+                                                            <h3 className="text-2xl font-bold leading-tight group-hover:text-blue-400 transition-colors">
+                                                                {activity.title}
+                                                            </h3>
+                                                        </div>
+                                                        <div className="flex flex-col items-end">
+                                                            <div className="flex items-center gap-1 text-yellow-500 mb-1">
+                                                                <Star className="w-4 h-4 fill-current" />
+                                                                <span className="text-sm font-bold text-white">{activity.rating}</span>
+                                                            </div>
+                                                            <span className="text-xs text-gray-500">{activity.reviews} reviews</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-6 text-sm text-gray-400 mb-8">
+                                                        <div className="flex items-center gap-2">
+                                                            <Clock className="w-4 h-4" />
+                                                            {activity.duration || 'Flexible'}
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <Calendar className="w-4 h-4" />
+                                                            Daily departures
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                                                    <div className="flex items-baseline gap-1">
+                                                        <span className="text-sm text-gray-500">From</span>
+                                                        <span className="text-3xl font-bold">${activity.price}</span>
+                                                        <span className="text-sm text-gray-500">/ person</span>
+                                                    </div>
+                                                    <button className="px-8 py-3.5 bg-white text-black rounded-2xl font-bold text-sm hover:bg-blue-500 hover:text-white transition-all flex items-center gap-2 group/btn">
+                                                        View Details
+                                                        <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="absolute bottom-6 left-6">
-                                            <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
-                                                <MapPin className="w-3 h-3 text-blue-400" />
-                                                <span className="text-[10px] font-bold uppercase tracking-widest">{item.location}</span>
-                                            </div>
-                                        </div>
+                                    </motion.div>
+                                ))}
+                                {activities.length === 0 && !loading && (
+                                    <div className="text-center py-24 text-gray-500">
+                                        No activities found matching your criteria.
                                     </div>
-                                    <div className="p-8">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <h3 className="text-2xl font-bold tracking-tight group-hover:text-blue-400 transition-colors">{item.name}</h3>
-                                            <div className="text-xl font-bold">{item.price}</div>
-                                        </div>
-                                        <div className="flex items-center space-x-6 text-gray-500 text-xs">
-                                            <div className="flex items-center">
-                                                <Clock className="w-3.5 h-3.5 mr-1.5" />
-                                                7 Days
-                                            </div>
-                                            <div className="flex items-center">
-                                                <DollarSign className="w-3.5 h-3.5 mr-1.5" />
-                                                Mid-range
-                                            </div>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </div>
-                    </div>
+                                )}
+                            </div>
+                        )}
+                    </section>
                 </div>
             </div>
+
+            <style jsx global>{`
+                .no-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+                .no-scrollbar {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+                .glass-card {
+                    background: rgba(255, 255, 255, 0.03);
+                    backdrop-filter: blur(12px);
+                }
+            `}</style>
         </main>
     );
 };

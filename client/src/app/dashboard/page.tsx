@@ -54,23 +54,26 @@ const Dashboard = () => {
                 </div>
 
                 {/* Search and Filters */}
-                <div className="glass-card p-4 rounded-2xl flex flex-col md:flex-row items-center gap-4 mb-12">
+                <div className="flex flex-col lg:flex-row items-center gap-4 mb-16">
                     <div className="relative flex-1 w-full">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                         <input
                             type="text"
-                            placeholder="Search journeys..."
+                            placeholder="Search bar ......"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl focus:outline-none focus:border-white/20 transition-colors"
+                            className="w-full pl-12 pr-4 py-4 bg-white/[0.03] border border-white/[0.08] rounded-2xl focus:outline-none focus:border-white/20 transition-colors text-sm"
                         />
                     </div>
-                    <div className="flex items-center gap-3 w-full md:w-auto">
-                        <button className="flex-1 md:flex-none px-6 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl flex items-center justify-center gap-2 hover:bg-white/10 transition-colors text-sm font-medium">
-                            <Filter className="w-4 h-4" /> Filter
+                    <div className="flex items-center gap-3 w-full lg:w-auto">
+                        <button className="flex-1 lg:flex-none px-8 py-4 bg-white/[0.03] border border-white/[0.08] rounded-2xl flex items-center justify-center gap-2 hover:bg-white/10 transition-colors text-sm font-medium">
+                            Group by
                         </button>
-                        <button className="flex-1 md:flex-none px-6 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl flex items-center justify-center gap-2 hover:bg-white/10 transition-colors text-sm font-medium">
-                            <ArrowUpAz className="w-4 h-4" /> Sort
+                        <button className="flex-1 lg:flex-none px-8 py-4 bg-white/[0.03] border border-white/[0.08] rounded-2xl flex items-center justify-center gap-2 hover:bg-white/10 transition-colors text-sm font-medium">
+                            Filter
+                        </button>
+                        <button className="flex-1 lg:flex-none px-8 py-4 bg-white/[0.03] border border-white/[0.08] rounded-2xl flex items-center justify-center gap-2 hover:bg-white/10 transition-colors text-sm font-medium">
+                            Sort by...
                         </button>
                     </div>
                 </div>
@@ -97,27 +100,41 @@ const Dashboard = () => {
                     <div className="space-y-16">
                         {ongoingTrips.length > 0 && (
                             <section>
-                                <div className="flex items-center gap-3 mb-8">
-                                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                                    <h2 className="text-xl font-bold tracking-tight">Ongoing Trips</h2>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                <h2 className="text-3xl font-bold tracking-tight mb-8">Ongoing</h2>
+                                <div className="space-y-6">
                                     {ongoingTrips.map(trip => (
-                                        <TripCard key={trip.id} trip={trip} />
+                                        <Link key={trip.id} href={`/trips/${trip.id}`}>
+                                            <div className="glass-card p-12 rounded-[32px] border border-white/10 hover:border-white/20 transition-all group cursor-pointer">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <h3 className="text-2xl font-bold mb-2 group-hover:text-blue-400 transition-colors">{trip.title}</h3>
+                                                        <p className="text-gray-500 text-lg">Short Over View of the Trip</p>
+                                                    </div>
+                                                    <ChevronRight className="w-8 h-8 text-gray-700 group-hover:text-white group-hover:translate-x-2 transition-all" />
+                                                </div>
+                                            </div>
+                                        </Link>
                                     ))}
                                 </div>
                             </section>
                         )}
 
                         <section>
-                            <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-xl font-bold tracking-tight">Upcoming Adventures</h2>
-                                <span className="text-xs font-bold uppercase tracking-widest text-gray-500">{upcomingTrips.length} Trips</span>
-                            </div>
+                            <h2 className="text-3xl font-bold tracking-tight mb-8">Up-coming</h2>
                             {upcomingTrips.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                <div className="space-y-6">
                                     {upcomingTrips.map(trip => (
-                                        <TripCard key={trip.id} trip={trip} />
+                                        <Link key={trip.id} href={`/trips/${trip.id}`}>
+                                            <div className="glass-card p-12 rounded-[32px] border border-white/10 hover:border-white/20 transition-all group cursor-pointer">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <h3 className="text-2xl font-bold mb-2 group-hover:text-blue-400 transition-colors">{trip.title}</h3>
+                                                        <p className="text-gray-500 text-lg">Short Over View of the Trip</p>
+                                                    </div>
+                                                    <ChevronRight className="w-8 h-8 text-gray-700 group-hover:text-white group-hover:translate-x-2 transition-all" />
+                                                </div>
+                                            </div>
+                                        </Link>
                                     ))}
                                 </div>
                             ) : (
@@ -129,13 +146,20 @@ const Dashboard = () => {
 
                         {completedTrips.length > 0 && (
                             <section>
-                                <div className="flex items-center justify-between mb-8">
-                                    <h2 className="text-xl font-bold tracking-tight">Past Memories</h2>
-                                    <span className="text-xs font-bold uppercase tracking-widest text-gray-500">{completedTrips.length} Trips</span>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 opacity-60 hover:opacity-100 transition-opacity">
+                                <h2 className="text-3xl font-bold tracking-tight mb-8">Completed</h2>
+                                <div className="space-y-6">
                                     {completedTrips.map(trip => (
-                                        <TripCard key={trip.id} trip={trip} />
+                                        <Link key={trip.id} href={`/trips/${trip.id}`}>
+                                            <div className="glass-card p-12 rounded-[32px] border border-white/10 hover:border-white/20 transition-all group cursor-pointer opacity-70 hover:opacity-100">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <h3 className="text-2xl font-bold mb-2 group-hover:text-blue-400 transition-colors">{trip.title}</h3>
+                                                        <p className="text-gray-500 text-lg">Short Over View of the Trip</p>
+                                                    </div>
+                                                    <ChevronRight className="w-8 h-8 text-gray-700 group-hover:text-white group-hover:translate-x-2 transition-all" />
+                                                </div>
+                                            </div>
+                                        </Link>
                                     ))}
                                 </div>
                             </section>
