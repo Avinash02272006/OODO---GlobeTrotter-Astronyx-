@@ -32,11 +32,14 @@ model User {
 model Trip {
   id            String    @id @default(uuid())
   title         String
+  location      String?
   description   String?
   startDate     DateTime
   endDate       DateTime
   budget        Float?
   currency      String    @default("USD")
+  distance      Float?    // in kilometers
+  travelMode    String?   // e.g., Flight, Car, Train
   ownerId       String
   owner         User      @relation(fields: [ownerId], references: [id])
   stops         TripStop[]

@@ -21,6 +21,7 @@ import Link from 'next/link';
 import Navbar from '@/components/layout/Navbar';
 import api from '@/lib/api';
 import { useParams } from 'next/navigation';
+import { format } from 'date-fns';
 
 const ItineraryView = () => {
     const { id } = useParams();
@@ -64,7 +65,10 @@ const ItineraryView = () => {
                         <div className="flex flex-wrap items-center gap-6 text-gray-500">
                             <div className="flex items-center">
                                 <CalendarIcon className="w-4 h-4 mr-2" />
-                                <span>Jan 12 - Jan 24, 2024</span>
+                                <span>
+                                    {trip?.startDate ? format(new Date(trip.startDate), 'MMM d') : '...'} -
+                                    {trip?.endDate ? format(new Date(trip.endDate), 'MMM d, yyyy') : '...'}
+                                </span>
                             </div>
                             <div className="flex items-center">
                                 <MapPin className="w-4 h-4 mr-2" />
@@ -72,7 +76,7 @@ const ItineraryView = () => {
                             </div>
                             <div className="flex items-center">
                                 <DollarSign className="w-4 h-4 mr-2" />
-                                <span>Est. $4,200</span>
+                                <span>Est. ${trip?.budget || 0}</span>
                             </div>
                         </div>
                     </div>
@@ -87,8 +91,8 @@ const ItineraryView = () => {
                                 key={tab.id}
                                 onClick={() => setViewMode(tab.id as any)}
                                 className={`flex items-center px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${viewMode === tab.id
-                                        ? 'bg-white text-black shadow-xl'
-                                        : 'text-gray-500 hover:text-white'
+                                    ? 'bg-white text-black shadow-xl'
+                                    : 'text-gray-500 hover:text-white'
                                     }`}
                             >
                                 {tab.icon}
@@ -107,33 +111,31 @@ const ItineraryView = () => {
                             exit={{ opacity: 0, y: -20 }}
                             className="space-y-12"
                         >
-                            {[1, 2, 3].map((day) => (
-                                <div key={day} className="relative pl-12 md:pl-24">
+                            {trip?.stops?.map((stop: any, idx: number) => (
+                                <div key={stop.id} className="relative pl-12 md:pl-24">
                                     {/* Vertical Line */}
                                     <div className="absolute left-4 md:left-8 top-0 bottom-0 w-[1px] bg-gradient-to-b from-white/20 via-white/10 to-transparent" />
 
                                     {/* Day Marker */}
                                     <div className="absolute left-0 md:left-4 top-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-black border border-white/20 flex items-center justify-center z-10">
-                                        <span className="text-xs font-bold">D{day}</span>
+                                        <span className="text-xs font-bold">S{idx + 1}</span>
                                     </div>
 
                                     <div className="space-y-8">
                                         <div className="flex items-center justify-between">
-                                            <h2 className="text-2xl font-bold tracking-tight">Paris, France</h2>
-                                            <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Jan {11 + day}, 2024</span>
+                                            <h2 className="text-2xl font-bold tracking-tight">{stop.city}, {stop.country}</h2>
+                                            <span className="text-xs font-bold uppercase tracking-widest text-gray-500">
+                                                {format(new Date(stop.arrivalDate), 'MMM d')} - {format(new Date(stop.departureDate), 'MMM d, yyyy')}
+                                            </span>
                                         </div>
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            {[
-                                                { time: '09:00 AM', title: 'Eiffel Tower Visit', cost: '$45', type: 'Sightseeing' },
-                                                { time: '01:00 PM', title: 'Lunch at Le Meurice', cost: '$120', type: 'Dining' },
-                                                { time: '04:00 PM', title: 'Louvre Museum', cost: '$20', type: 'Culture' },
-                                            ].map((activity, i) => (
-                                                <div key={i} className="glass-card p-6 rounded-3xl group card-glow">
+                                            {stop.activities?.map((activity: any, i: number) => (
+                                                <div key={activity.id} className="glass-card p-6 rounded-3xl group card-glow">
                                                     <div className="flex items-start justify-between mb-4">
                                                         <div className="flex items-center text-[10px] font-bold uppercase tracking-widest text-blue-400">
                                                             <Clock className="w-3 h-3 mr-1.5" />
-                                                            {activity.time}
+                                                            {activity.startTime ? format(new Date(activity.startTime), 'hh:mm a') : 'Flexible Time'}
                                                         </div>
                                                         <button className="p-1.5 hover:bg-white/5 rounded-lg transition-colors">
                                                             <MoreVertical className="w-4 h-4 text-gray-600" />
@@ -141,19 +143,26 @@ const ItineraryView = () => {
                                                     </div>
                                                     <h3 className="text-lg font-bold mb-2 group-hover:text-blue-400 transition-colors">{activity.title}</h3>
                                                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">
-                                                        <span className="text-xs text-gray-500">{activity.type}</span>
-                                                        <span className="text-sm font-bold text-gray-300">{activity.cost}</span>
+                                                        <span className="text-xs text-gray-500">{activity.category || 'General'}</span>
+                                                        <span className="text-sm font-bold text-gray-300">${activity.cost}</span>
                                                     </div>
                                                 </div>
                                             ))}
-                                            <button className="border border-white/5 border-dashed rounded-3xl p-6 flex flex-col items-center justify-center text-gray-500 hover:text-white hover:bg-white/[0.02] transition-all group">
-                                                <Plus className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
-                                                <span className="text-xs font-bold uppercase tracking-widest">Add Activity</span>
-                                            </button>
+                                            <Link href={`/trips/${id}`}>
+                                                <button className="border border-white/5 border-dashed rounded-3xl p-6 flex flex-col items-center justify-center text-gray-500 hover:text-white hover:bg-white/[0.02] transition-all group h-full w-full">
+                                                    <Plus className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
+                                                    <span className="text-xs font-bold uppercase tracking-widest">Edit Itinerary</span>
+                                                </button>
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>
                             ))}
+                            {(!trip?.stops || trip.stops.length === 0) && (
+                                <div className="text-center py-24 text-gray-500">
+                                    No stops added to this itinerary yet.
+                                </div>
+                            )}
                         </motion.div>
                     )}
 

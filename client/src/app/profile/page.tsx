@@ -33,9 +33,20 @@ interface Trip {
 }
 
 const ProfilePage = () => {
-    const { user, logout } = useAuth();
+    const { user, logout, updateUser } = useAuth();
     const [trips, setTrips] = useState<Trip[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [editFormData, setEditFormData] = useState({
+        firstName: '',
+        lastName: '',
+        phoneNumber: '',
+        city: '',
+        country: '',
+        additionalInfo: '',
+        avatar: ''
+    });
     const [stats, setStats] = useState({
         trips: 0,
         cities: 0,
@@ -46,6 +57,15 @@ const ProfilePage = () => {
     useEffect(() => {
         if (user) {
             fetchProfileData();
+            setEditFormData({
+                firstName: user.firstName || '',
+                lastName: user.lastName || '',
+                phoneNumber: user.phoneNumber || '',
+                city: user.city || '',
+                country: user.country || '',
+                additionalInfo: user.additionalInfo || '',
+                avatar: user.avatar || ''
+            });
         }
     }, [user]);
 
@@ -67,6 +87,20 @@ const ProfilePage = () => {
             console.error('Error fetching profile data:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleUpdateProfile = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsUpdating(true);
+        try {
+            const { data } = await api.put('/auth/profile', editFormData);
+            updateUser(data);
+            setIsEditModalOpen(false);
+        } catch (error) {
+            console.error('Error updating profile:', error);
+        } finally {
+            setIsUpdating(false);
         }
     };
 
@@ -97,7 +131,10 @@ const ProfilePage = () => {
                                             <User className="w-12 h-12 text-gray-600" />
                                         )}
                                     </div>
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                                    <div
+                                        onClick={() => setIsEditModalOpen(true)}
+                                        className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                                    >
                                         <Camera className="w-6 h-6 text-white" />
                                     </div>
                                 </div>
@@ -115,7 +152,10 @@ const ProfilePage = () => {
                         </div>
 
                         <div className="absolute bottom-4 right-12 flex items-center space-x-4">
-                            <button className="btn-secondary py-2.5 px-6 text-sm flex items-center">
+                            <button
+                                onClick={() => setIsEditModalOpen(true)}
+                                className="btn-secondary py-2.5 px-6 text-sm flex items-center"
+                            >
                                 <Settings className="w-4 h-4 mr-2" />
                                 Edit Profile
                             </button>
@@ -124,6 +164,111 @@ const ProfilePage = () => {
                             </button>
                         </div>
                     </div>
+
+                    {/* Edit Profile Modal */}
+                    {isEditModalOpen && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                            <div
+                                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                                onClick={() => setIsEditModalOpen(false)}
+                            />
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                className="relative w-full max-w-2xl glass-card rounded-[40px] border border-white/10 overflow-hidden"
+                            >
+                                <div className="p-8 max-h-[90vh] overflow-y-auto custom-scrollbar">
+                                    <h2 className="text-3xl font-bold mb-8">Edit Profile</h2>
+                                    <form onSubmit={handleUpdateProfile} className="space-y-6">
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-widest">First Name</label>
+                                                <input
+                                                    type="text"
+                                                    value={editFormData.firstName}
+                                                    onChange={(e) => setEditFormData({ ...editFormData, firstName: e.target.value })}
+                                                    className="w-full px-6 py-4 bg-white/[0.03] border border-white/10 rounded-2xl focus:outline-none focus:border-blue-500/50 transition-all"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-widest">Last Name</label>
+                                                <input
+                                                    type="text"
+                                                    value={editFormData.lastName}
+                                                    onChange={(e) => setEditFormData({ ...editFormData, lastName: e.target.value })}
+                                                    className="w-full px-6 py-4 bg-white/[0.03] border border-white/10 rounded-2xl focus:outline-none focus:border-blue-500/50 transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-widest">Avatar URL</label>
+                                            <input
+                                                type="text"
+                                                value={editFormData.avatar}
+                                                onChange={(e) => setEditFormData({ ...editFormData, avatar: e.target.value })}
+                                                placeholder="https://..."
+                                                className="w-full px-6 py-4 bg-white/[0.03] border border-white/10 rounded-2xl focus:outline-none focus:border-blue-500/50 transition-all"
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-widest">City</label>
+                                                <input
+                                                    type="text"
+                                                    value={editFormData.city}
+                                                    onChange={(e) => setEditFormData({ ...editFormData, city: e.target.value })}
+                                                    className="w-full px-6 py-4 bg-white/[0.03] border border-white/10 rounded-2xl focus:outline-none focus:border-blue-500/50 transition-all"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-widest">Country</label>
+                                                <input
+                                                    type="text"
+                                                    value={editFormData.country}
+                                                    onChange={(e) => setEditFormData({ ...editFormData, country: e.target.value })}
+                                                    className="w-full px-6 py-4 bg-white/[0.03] border border-white/10 rounded-2xl focus:outline-none focus:border-blue-500/50 transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-widest">Phone Number</label>
+                                            <input
+                                                type="text"
+                                                value={editFormData.phoneNumber}
+                                                onChange={(e) => setEditFormData({ ...editFormData, phoneNumber: e.target.value })}
+                                                className="w-full px-6 py-4 bg-white/[0.03] border border-white/10 rounded-2xl focus:outline-none focus:border-blue-500/50 transition-all"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-widest">Bio</label>
+                                            <textarea
+                                                rows={4}
+                                                value={editFormData.additionalInfo}
+                                                onChange={(e) => setEditFormData({ ...editFormData, additionalInfo: e.target.value })}
+                                                className="w-full px-6 py-4 bg-white/[0.03] border border-white/10 rounded-2xl focus:outline-none focus:border-blue-500/50 transition-all resize-none"
+                                            />
+                                        </div>
+                                        <div className="flex gap-4 pt-4">
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsEditModalOpen(false)}
+                                                className="flex-1 py-4 rounded-2xl bg-white/5 hover:bg-white/10 font-bold transition-all"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                disabled={isUpdating}
+                                                className="flex-1 py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 font-bold flex items-center justify-center gap-2 transition-all"
+                                            >
+                                                {isUpdating ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Changes'}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 pt-8">
                         {/* Left Column - Info */}

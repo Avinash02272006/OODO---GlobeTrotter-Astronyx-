@@ -5,32 +5,42 @@ import { z } from 'zod';
 
 const tripSchema = z.object({
     title: z.string().min(1),
+    location: z.string().optional(),
     description: z.string().optional(),
     startDate: z.string().transform((str) => new Date(str)),
     endDate: z.string().transform((str) => new Date(str)),
     budget: z.number().optional(),
     currency: z.string().default('USD'),
+    distance: z.number().optional(),
+    travelMode: z.string().optional(),
 });
 
 export const createTrip = async (req: AuthRequest, res: Response) => {
     try {
-        const { title, description, startDate, endDate, budget, currency } = tripSchema.parse(req.body);
+        console.log('Creating trip with body:', req.body);
+        const { title, location, description, startDate, endDate, budget, currency, distance, travelMode } = tripSchema.parse(req.body);
         const userId = req.userId!;
+        console.log('Parsed data:', { title, location, startDate, endDate, userId });
 
         const trip = await prisma.trip.create({
             data: {
                 title,
+                location,
                 description,
                 startDate,
                 endDate,
                 budget,
                 currency,
+                distance,
+                travelMode,
                 ownerId: userId,
             },
         });
 
+        console.log('Trip created successfully:', trip.id);
         res.status(201).json(trip);
     } catch (error: any) {
+        console.error('Trip creation failed:', error);
         res.status(400).json({ message: error.message });
     }
 };

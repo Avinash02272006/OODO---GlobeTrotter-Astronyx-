@@ -39,7 +39,7 @@ export const getPosts = async (req: Request, res: Response) => {
 export const createPost = async (req: Request, res: Response) => {
     try {
         const { title, content, image, location } = req.body;
-        const authorId = (req as any).user.id;
+        const authorId = (req as any).userId;
 
         const post = await p.post.create({
             data: {

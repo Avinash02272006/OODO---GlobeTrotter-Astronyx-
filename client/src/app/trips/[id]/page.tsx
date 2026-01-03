@@ -5,7 +5,7 @@ import Navbar from '@/components/layout/Navbar';
 import TripMap from '@/components/trips/TripMap';
 import ItineraryBuilder from '@/components/trips/ItineraryBuilder';
 import BudgetChart from '@/components/trips/BudgetChart';
-import { PieChart, Wallet, Share2, Settings, Loader2 } from 'lucide-react';
+import { PieChart, Wallet, Share2, Settings, Loader2, MapPin, Compass } from 'lucide-react';
 import api from '@/lib/api';
 
 const TripDetails = ({ params }: { params: { id: string } }) => {
@@ -13,23 +13,39 @@ const TripDetails = ({ params }: { params: { id: string } }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
 
+    const fetchTrip = async () => {
+        try {
+            const { data } = await api.get(`/trips/${params.id}`);
+            setTrip(data);
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Failed to fetch trip details.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchTrip = async () => {
-            try {
-                const { data } = await api.get(`/trips/${params.id}`);
-                setTrip(data);
-            } catch (err: any) {
-                setError(err.response?.data?.message || 'Failed to fetch trip details.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
         fetchTrip();
     }, [params.id]);
 
     const budgetData = {
-        labels: ['Accommodation', 'Food', 'Transport', 'Activities'],
-        values: [1200, 800, 500, 300] // This could be calculated from trip.expenses
+        labels: ['Accommodation', 'Food', 'Transport', 'Sightseeing'],
+        values: trip?.stops?.reduce((acc: any, stop: any) => {
+            stop.activities?.forEach((act: any) => {
+                const cat = act.category || 'Sightseeing';
+                acc[cat] = (acc[cat] || 0) + act.cost;
+            });
+            return acc;
+        }, { Accommodation: 0, Food: 0, Transport: 0, Sightseeing: 0 })
+    };
+
+    const budgetValues = Object.values(budgetData.values);
+    const budgetLabels = Object.keys(budgetData.values);
+
+    const handleShare = () => {
+        const url = `${window.location.origin}/trips/${params.id}/view`;
+        navigator.clipboard.writeText(url);
+        alert('Itinerary link copied to clipboard!');
     };
 
     if (isLoading) {
@@ -63,16 +79,31 @@ const TripDetails = ({ params }: { params: { id: string } }) => {
                         <div className="flex items-center justify-between mb-2">
                             <h1 className="text-3xl font-bold">{trip.title}</h1>
                             <div className="flex gap-2">
-                                <button className="p-2 hover:bg-white/5 rounded-lg transition-colors"><Share2 className="w-5 h-5" /></button>
+                                <button onClick={handleShare} className="p-2 hover:bg-white/5 rounded-lg transition-colors"><Share2 className="w-5 h-5" /></button>
                                 <button className="p-2 hover:bg-white/5 rounded-lg transition-colors"><Settings className="w-5 h-5" /></button>
                             </div>
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-gray-400">
-                            <div className="flex items-center gap-1"><Wallet className="w-4 h-4" /> Budget: ${trip.budget}</div>
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08]">
+                                <Wallet className="w-4 h-4 text-green-400" />
+                                <span>Budget: ${trip.budget}</span>
+                            </div>
+                            {trip.distance && (
+                                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08]">
+                                    <MapPin className="w-4 h-4 text-blue-400" />
+                                    <span>{trip.distance} km</span>
+                                </div>
+                            )}
+                            {trip.travelMode && (
+                                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08]">
+                                    <Compass className="w-4 h-4 text-purple-400" />
+                                    <span>{trip.travelMode}</span>
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    <ItineraryBuilder stops={trip.stops} />
+                    <ItineraryBuilder stops={trip.stops} tripId={trip.id} onUpdate={fetchTrip} />
 
                     {/* Budget Analytics Preview */}
                     <div className="mt-12 glass-dark p-6 rounded-3xl">
@@ -81,7 +112,7 @@ const TripDetails = ({ params }: { params: { id: string } }) => {
                             <PieChart className="w-5 h-5 text-blue-400" />
                         </div>
                         <div className="h-48">
-                            <BudgetChart data={budgetData} />
+                            <BudgetChart data={{ labels: budgetLabels, values: budgetValues as number[] }} />
                         </div>
                     </div>
                 </div>

@@ -51,7 +51,13 @@ export const register = async (req: Request, res: Response) => {
                 id: user.id,
                 email: user.email,
                 firstName: user.firstName,
-                lastName: user.lastName
+                lastName: user.lastName,
+                phoneNumber: user.phoneNumber,
+                city: user.city,
+                country: user.country,
+                additionalInfo: user.additionalInfo,
+                avatar: user.avatar,
+                role: user.role,
             },
             accessToken,
             refreshToken
@@ -83,7 +89,13 @@ export const login = async (req: Request, res: Response) => {
                 id: user.id,
                 email: user.email,
                 firstName: user.firstName,
-                lastName: user.lastName
+                lastName: user.lastName,
+                phoneNumber: user.phoneNumber,
+                city: user.city,
+                country: user.country,
+                additionalInfo: user.additionalInfo,
+                avatar: user.avatar,
+                role: user.role,
             },
             accessToken,
             refreshToken
@@ -99,11 +111,55 @@ export const refresh = async (req: Request, res: Response) => {
 
     try {
         const { userId } = verifyRefreshToken(refreshToken);
+
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            return res.status(403).json({ message: 'User no longer exists' });
+        }
+
         const accessToken = generateAccessToken(userId);
         const newRefreshToken = generateRefreshToken(userId);
 
         res.json({ accessToken, refreshToken: newRefreshToken });
     } catch (error) {
         res.status(403).json({ message: 'Invalid refresh token' });
+    }
+};
+
+const updateProfileSchema = z.object({
+    firstName: z.string().min(1).optional(),
+    lastName: z.string().min(1).optional(),
+    phoneNumber: z.string().optional(),
+    city: z.string().optional(),
+    country: z.string().optional(),
+    additionalInfo: z.string().optional(),
+    avatar: z.string().optional(),
+});
+
+export const updateProfile = async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).userId;
+        const data = updateProfileSchema.parse(req.body);
+
+        const user = await prisma.user.update({
+            where: { id: userId },
+            data,
+            select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                phoneNumber: true,
+                city: true,
+                country: true,
+                additionalInfo: true,
+                avatar: true,
+                role: true,
+            }
+        });
+
+        res.json(user);
+    } catch (error: any) {
+        res.status(400).json({ message: error.message });
     }
 };
