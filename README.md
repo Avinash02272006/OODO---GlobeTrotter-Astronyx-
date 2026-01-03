@@ -106,10 +106,4 @@ npm run dev
 
 ---
 
-## 🗺️ Future Roadmap
-- [ ] **AI Concierge**: GPT-powered itinerary generation based on travel style.
-- [ ] **Group Planning**: Real-time collaborative editing for group trips.
-- [ ] **Offline Mode**: Access itineraries and maps without an internet connection.
-- [ ] **Booking Integration**: Direct booking for flights and hotels within the app.
 
----
