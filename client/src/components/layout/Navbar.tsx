@@ -47,7 +47,10 @@ const Navbar = () => {
                         <Link
                             key={link.name}
                             href={link.href}
-                            className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/5"
+                            className={`px-4 py-2 text-sm font-medium transition-all rounded-lg ${link.name === 'Calendar'
+                                    ? 'bg-blue-600/10 text-blue-400 border border-blue-600/20 hover:bg-blue-600/20'
+                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                }`}
                         >
                             {link.name}
                         </Link>
@@ -107,7 +110,7 @@ const Navbar = () => {
                                     key={link.name}
                                     href={link.href}
                                     onClick={() => setIsMobileMenuOpen(false)}
-                                    className="text-lg font-medium text-gray-400 hover:text-white"
+                                    className={`text-lg font-medium text-gray-400 hover:text-white ${link.name === 'My Trips' ? 'bg-blue-600/10 text-blue-400 rounded-lg py-2 px-3 border border-blue-600/20' : ''}`}
                                 >
                                     {link.name}
                                 </Link>

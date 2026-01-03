@@ -258,26 +258,36 @@ const DashboardHome = () => {
                             ))
                         ) : trips.length > 0 ? (
                             trips.map((trip, i) => (
-                                <Link key={trip.id} href={`/trips/${trip.id}`}>
-                                    <div className="group cursor-pointer">
-                                        <div className="aspect-[3/4] rounded-[32px] overflow-hidden mb-6 relative">
-                                            <img
-                                                src={trip.image || `https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=600&auto=format&fit=crop`}
-                                                alt={trip.title}
-                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                                            <div className="absolute bottom-6 left-6">
-                                                <p className="text-xs font-medium text-white/60 mb-1">{new Date(trip.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</p>
-                                                <h3 className="font-bold text-xl">{trip.title}</h3>
-                                                <div className="flex items-center gap-2 mt-2 text-[10px] text-gray-400">
-                                                    <MapPin className="w-3 h-3" />
-                                                    {trip.location || 'Unknown Location'}
-                                                </div>
+                                <div key={trip.id} className="group cursor-pointer">
+                                    <div className="aspect-[3/4] rounded-[32px] overflow-hidden mb-6 relative">
+                                        <img
+                                            src={trip.image || `https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=600&auto=format&fit=crop`}
+                                            alt={trip.title}
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-100 group-hover:opacity-0 transition-opacity duration-500" />
+                                        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center gap-4">
+                                            <Link href={`/trips/${trip.id}/itinerary`} className="w-3/4">
+                                                <button className="w-full py-3 bg-white text-black rounded-xl font-bold text-sm hover:scale-105 transition-transform">
+                                                    View Itinerary
+                                                </button>
+                                            </Link>
+                                            <Link href={`/trips/${trip.id}`} className="w-3/4">
+                                                <button className="w-full py-3 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-xl font-bold text-sm hover:bg-white/20 transition-all">
+                                                    Trip Details
+                                                </button>
+                                            </Link>
+                                        </div>
+                                        <div className="absolute bottom-6 left-6 group-hover:opacity-0 transition-opacity duration-500">
+                                            <p className="text-xs font-medium text-white/60 mb-1">{new Date(trip.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</p>
+                                            <h3 className="font-bold text-xl">{trip.title}</h3>
+                                            <div className="flex items-center gap-2 mt-2 text-[10px] text-gray-400">
+                                                <MapPin className="w-3 h-3" />
+                                                {trip.location || 'Unknown Location'}
                                             </div>
                                         </div>
                                     </div>
-                                </Link>
+                                </div>
                             ))
                         ) : (
                             <div className="col-span-full py-20 text-center glass-card rounded-[40px]">

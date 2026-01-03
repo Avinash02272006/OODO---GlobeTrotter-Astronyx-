@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
+import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, MapPin, Plus, Sparkles, MoreVertical, Search, ListFilter, Filter, ArrowUpAz, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
@@ -174,9 +175,9 @@ const CalendarView = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                         {/* Calendar Grid */}
                         <div className="lg:col-span-2">
-                            <div className="glass-card rounded-[40px] overflow-hidden border border-white/10">
-                                <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
-                                    <h3 className="text-2xl font-bold">
+                            <div className="bg-white rounded-[40px] overflow-hidden shadow-2xl shadow-white/5 border border-white/10">
+                                <div className="p-8 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                                    <h3 className="text-2xl font-bold text-black">
                                         {view === 'month' ? (
                                             <>{monthNames[currentDate.getMonth()]} <span className="text-gray-600">{currentDate.getFullYear()}</span></>
                                         ) : view === 'week' ? (
@@ -188,13 +189,13 @@ const CalendarView = () => {
                                     <div className="flex items-center space-x-4">
                                         <button
                                             onClick={prevMonth}
-                                            className="p-2 hover:bg-white/5 rounded-xl transition-colors"
+                                            className="p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-black"
                                         >
                                             <ChevronLeft className="w-5 h-5" />
                                         </button>
                                         <button
                                             onClick={nextMonth}
-                                            className="p-2 hover:bg-white/5 rounded-xl transition-colors"
+                                            className="p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-black"
                                         >
                                             <ChevronRight className="w-5 h-5" />
                                         </button>
@@ -203,9 +204,9 @@ const CalendarView = () => {
 
                                 {view === 'month' && (
                                     <>
-                                        <div className="grid grid-cols-7 border-b border-white/5 bg-white/[0.01]">
+                                        <div className="grid grid-cols-7 border-b border-gray-100 bg-gray-50/30">
                                             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                                                <div key={day} className="py-4 text-center text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                                <div key={day} className="py-5 text-center text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400">
                                                     {day}
                                                 </div>
                                             ))}
@@ -213,11 +214,11 @@ const CalendarView = () => {
 
                                         <div className="grid grid-cols-7">
                                             {padding.map(i => (
-                                                <div key={`pad-${i}`} className="aspect-square border-r border-b border-white/5 p-4 opacity-20" />
+                                                <div key={`pad-${i}`} className="aspect-square border-r border-b border-gray-50 p-4 bg-gray-50/10" />
                                             ))}
                                             {loading ? (
                                                 <div className="col-span-7 h-96 flex items-center justify-center">
-                                                    <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                                                    <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
                                                 </div>
                                             ) : (
                                                 days.map(day => {
@@ -225,18 +226,24 @@ const CalendarView = () => {
                                                     const dayEvents = getDayEvents(day);
 
                                                     return (
-                                                        <div key={day} className="aspect-square border-r border-b border-white/5 p-2 group cursor-pointer hover:bg-white/[0.02] transition-colors relative overflow-hidden">
-                                                            <span className={`text-sm font-bold ${isToday ? 'text-blue-400' : 'text-gray-400'}`}>
-                                                                {day}
-                                                            </span>
-                                                            <div className="mt-1 space-y-1">
+                                                        <div key={day} className={`aspect-square border-r border-b border-gray-50 p-3 group cursor-pointer hover:bg-gray-50/50 transition-all relative overflow-hidden ${dayEvents.length > 0 ? 'bg-blue-50/5' : ''}`}>
+                                                            <div className="flex justify-between items-start mb-2">
+                                                                <span className={`text-sm font-bold ${isToday ? 'w-7 h-7 flex items-center justify-center bg-blue-600 text-white rounded-full' : 'text-gray-400 group-hover:text-black'}`}>
+                                                                    {day}
+                                                                </span>
+                                                            </div>
+                                                            <div className="space-y-1.5 overflow-y-auto max-h-[calc(100%-2rem)] scrollbar-hide">
                                                                 {dayEvents.map((event, idx) => (
-                                                                    <div
-                                                                        key={idx}
-                                                                        className={`px-1.5 py-0.5 rounded text-[7px] font-bold uppercase truncate bg-blue-500/20 text-blue-400 border border-blue-500/30`}
-                                                                    >
-                                                                        {event.title}
-                                                                    </div>
+                                                                    <Link key={idx} href={`/trips/${event.id}/itinerary`}>
+                                                                        <motion.div
+                                                                            initial={{ opacity: 0, x: -5 }}
+                                                                            animate={{ opacity: 1, x: 0 }}
+                                                                            className="px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-tight truncate bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-md"
+                                                                            title={event.title}
+                                                                        >
+                                                                            {event.title}
+                                                                        </motion.div>
+                                                                    </Link>
                                                                 ))}
                                                             </div>
                                                         </div>
@@ -258,14 +265,14 @@ const CalendarView = () => {
                                             });
 
                                             return (
-                                                <div key={i} className={`border-r border-white/5 flex flex-col ${isToday ? 'bg-blue-500/5' : ''}`}>
-                                                    <div className="p-4 text-center border-b border-white/5">
-                                                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()]}</p>
-                                                        <p className={`text-lg font-bold ${isToday ? 'text-blue-400' : ''}`}>{date.getDate()}</p>
+                                                <div key={i} className={`border-r border-gray-100 flex flex-col ${isToday ? 'bg-blue-50' : ''}`}>
+                                                    <div className="p-4 text-center border-b border-gray-100">
+                                                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()]}</p>
+                                                        <p className={`text-lg font-bold ${isToday ? 'text-blue-600' : 'text-black'}`}>{date.getDate()}</p>
                                                     </div>
                                                     <div className="flex-1 p-2 space-y-2 overflow-y-auto">
                                                         {dayEvents.map((event, idx) => (
-                                                            <div key={idx} className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[10px] font-bold">
+                                                            <div key={idx} className="p-2 rounded-lg bg-blue-600 text-white text-[10px] font-bold shadow-sm">
                                                                 {event.title}
                                                             </div>
                                                         ))}
@@ -277,25 +284,25 @@ const CalendarView = () => {
                                 )}
 
                                 {view === 'day' && (
-                                    <div className="p-8 h-[500px] overflow-y-auto">
+                                    <div className="p-8 h-[500px] overflow-y-auto bg-white">
                                         <div className="space-y-4">
                                             {trips.filter(t => {
                                                 const start = new Date(t.startDate);
                                                 const end = new Date(t.endDate);
                                                 return currentDate >= start && currentDate <= end;
                                             }).map((event, idx) => (
-                                                <div key={idx} className="p-6 rounded-3xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
+                                                <div key={idx} className="p-6 rounded-3xl bg-gray-50 border border-gray-100 flex items-center justify-between group hover:border-blue-200 transition-all">
                                                     <div className="flex items-center gap-4">
-                                                        <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center">
-                                                            <CalendarIcon className="w-6 h-6 text-blue-400" />
+                                                        <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white">
+                                                            <CalendarIcon className="w-6 h-6" />
                                                         </div>
                                                         <div>
-                                                            <h4 className="text-lg font-bold">{event.title}</h4>
+                                                            <h4 className="text-lg font-bold text-black">{event.title}</h4>
                                                             <p className="text-sm text-gray-500">{event.city}</p>
                                                         </div>
                                                     </div>
                                                     <div className="text-right">
-                                                        <p className="text-sm font-bold text-blue-400">Full Day</p>
+                                                        <p className="text-sm font-bold text-blue-600">Full Day</p>
                                                         <p className="text-xs text-gray-500">Trip Event</p>
                                                     </div>
                                                 </div>
@@ -305,7 +312,7 @@ const CalendarView = () => {
                                                 const end = new Date(t.endDate);
                                                 return currentDate >= start && currentDate <= end;
                                             }).length === 0 && (
-                                                    <div className="text-center py-20 text-gray-500">
+                                                    <div className="text-center py-20 text-gray-400">
                                                         No events scheduled for this day.
                                                     </div>
                                                 )}
