@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Navbar from '@/components/layout/Navbar';
-import { Search, Filter, ArrowUpAz, MessageSquare, Heart, Share2, User, MapPin, Star, Sparkles } from 'lucide-react';
+import { Search, Filter, ArrowUpAz, MessageSquare, Heart, Share2, User, MapPin, Star, Sparkles, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Community = () => {
