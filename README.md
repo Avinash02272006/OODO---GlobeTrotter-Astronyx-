@@ -1,4 +1,4 @@
-# 🌍 GlobeTrotter: The Future of Luxury Travel Planning
+# 🌍 GlobeTrotter: The Travel Planner
 
 ![GlobeTrotter Hero Banner](./globetrotter_hero_banner_1767438455857.png)
 
