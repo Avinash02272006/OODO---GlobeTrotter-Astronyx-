@@ -2,9 +2,7 @@
 
 ![GlobeTrotter Hero Banner](./globetrotter_hero_banner_1767438455857.png)
 
-> **"Elevating every journey from a plan to a masterpiece."**
-
-GlobeTrotter is a premium, production-grade travel orchestration platform designed for the modern explorer. Built with a focus on **Luxury Aesthetics**, **Real-time Collaboration**, and **Data-Driven Insights**, it transforms the chaotic process of trip planning into a seamless, cinematic experience.
+GlobeTrotter is a premium, production-grade travel orchestration platform designed for the explorer. Built with a focus on **Real-time Collaboration**, and **Data-Driven Insights**, it transforms the chaotic process of trip planning into a seamless experience.
 
 ---
 
