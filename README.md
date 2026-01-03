@@ -115,10 +115,3 @@ npm run dev
 - [ ] **Booking Integration**: Direct booking for flights and hotels within the app.
 
 ---
-
-## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-**Built with ❤️ for the Hackathon by the GlobeTrotter Team.**
