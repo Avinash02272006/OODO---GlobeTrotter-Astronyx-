@@ -20,6 +20,7 @@ const Navbar = () => {
     }, []);
 
     const navLinks = [
+        { name: 'Home', href: '/' },
         { name: 'My Trips', href: '/dashboard' },
         { name: 'Community', href: '/community' },
         { name: 'Calendar', href: '/calendar' },
