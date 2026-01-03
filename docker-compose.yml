@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: globetrotter
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  server:
+    build: ./server
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: postgresql://user:password@db:5432/globetrotter
+      JWT_SECRET: your-secret-key
+      JWT_REFRESH_SECRET: your-refresh-secret-key
+      GOOGLE_MAPS_API_KEY: your-google-maps-api-key
+    depends_on:
+      - db
+
+  client:
+    build: ./client
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:5000/api/v1
+      NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: your-google-maps-api-key
+    depends_on:
+      - server
+
+volumes:
+  postgres_data:

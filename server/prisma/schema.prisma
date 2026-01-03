@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String?
+  firstName     String?
+  lastName      String?
+  phoneNumber   String?
+  city          String?
+  country       String?
+  additionalInfo String?
+  avatar        String?
+  googleId      String?   @unique
+  role          String    @default("USER")
+  trips         Trip[]
+  sharedTrips   SharedTrip[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// Role enum removed for SQLite compatibility
+
+model Trip {
+  id            String    @id @default(uuid())
+  title         String
+  description   String?
+  startDate     DateTime
+  endDate       DateTime
+  budget        Float?
+  currency      String    @default("USD")
+  ownerId       String
+  owner         User      @relation(fields: [ownerId], references: [id])
+  stops         TripStop[]
+  expenses      Expense[]
+  sharedWith    SharedTrip[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([ownerId])
+}
+
+model TripStop {
+  id            String    @id @default(uuid())
+  tripId        String
+  trip          Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  city          String
+  country       String
+  latitude      Float
+  longitude     Float
+  arrivalDate   DateTime
+  departureDate DateTime
+  order         Int
+  activities    Activity[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([tripId])
+}
+
+model Activity {
+  id            String    @id @default(uuid())
+  stopId        String
+  stop          TripStop  @relation(fields: [stopId], references: [id], onDelete: Cascade)
+  title         String
+  description   String?
+  startTime     DateTime?
+  endTime       DateTime?
+  cost          Float     @default(0)
+  category      String?   // e.g., Sightseeing, Food, Transport
+  duration      Int?      // in minutes
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([stopId])
+}
+
+model Expense {
+  id            String    @id @default(uuid())
+  tripId        String
+  trip          Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  title         String
+  amount        Float
+  category      String
+  date          DateTime
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([tripId])
+}
+
+model SharedTrip {
+  id            String    @id @default(uuid())
+  tripId        String
+  trip          Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission    String    @default("VIEW") // VIEW, EDIT
+  createdAt     DateTime  @default(now())
+
+  @@unique([tripId, userId])
+}
+
+model Analytics {
+  id            String    @id @default(uuid())
+  event         String
+  metadata      String?
+  timestamp     DateTime  @default(now())
+}
